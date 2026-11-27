@@ -29,9 +29,14 @@ class Cart:
             self._items[product.sku] = CartItem(product, quantity)
 
     def remove(self, sku: str) -> None:
-        del self._items[sku]
+        """Remove a product from the cart. Unknown SKUs are ignored."""
+        self._items.pop(sku, None)
 
     def update_quantity(self, sku: str, quantity: int) -> None:
+        """Set the quantity of a product; a quantity of 0 removes it."""
+        if quantity == 0:
+            self.remove(sku)
+            return
         self._items[sku].quantity = quantity
 
     def apply_discount(self, code: str) -> None:
