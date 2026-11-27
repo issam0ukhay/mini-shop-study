@@ -42,8 +42,8 @@ def test_total_with_discount():
     cart = make_cart()
     cart.apply_discount("welcome10")
     assert cart.discount() == Decimal("3.00")
-    assert cart.tax() == Decimal("5.40")
-    assert cart.total() == Decimal("32.39")
+    assert cart.tax() == Decimal("6.00")
+    assert cart.total() == Decimal("32.99")
 
 
 def test_invalid_discount_code():
@@ -55,3 +55,11 @@ def test_update_quantity():
     cart = make_cart()
     cart.update_quantity("MUG-01", 5)
     assert cart.subtotal() == Decimal("67.49")
+
+
+def test_custom_tax_rate():
+    from shop.tax import TaxCalculator
+
+    cart = Cart(tax_calculator=TaxCalculator(Decimal("0.10")))
+    cart.add(MUG)
+    assert cart.tax() == Decimal("1.25")

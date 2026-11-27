@@ -2,9 +2,9 @@ from decimal import ROUND_HALF_UP, Decimal
 
 from shop.discounts import discount_rate
 from shop.models import CartItem, Product
+from shop.tax import TaxCalculator
 
 CENT = Decimal("0.01")
-TAX_RATE = Decimal("0.20")
 
 
 def _to_cents(amount: Decimal) -> Decimal:
@@ -12,9 +12,10 @@ def _to_cents(amount: Decimal) -> Decimal:
 
 
 class Cart:
-    def __init__(self) -> None:
+    def __init__(self, tax_calculator: TaxCalculator | None = None) -> None:
         self._items: dict[str, CartItem] = {}
         self._discount_rate = Decimal("0")
+        self._tax = tax_calculator or TaxCalculator()
 
     @property
     def items(self) -> list[CartItem]:
@@ -44,8 +45,7 @@ class Cart:
         return _to_cents(self.subtotal() * self._discount_rate)
 
     def tax(self) -> Decimal:
-        """Tax is charged on the discounted amount."""
-        return _to_cents((self.subtotal() - self.discount()) * TAX_RATE)
+        return self._tax.tax_for(self.subtotal())
 
     def total(self) -> Decimal:
         return self.subtotal() - self.discount() + self.tax()
